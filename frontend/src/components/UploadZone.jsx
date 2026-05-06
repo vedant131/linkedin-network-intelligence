@@ -118,23 +118,6 @@ export default function UploadZone({ onUpload }) {
           </div>
         </div>
 
-        {/* Feature grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
-          {[
-            { icon: '🤖', title: 'AI Classification',   sub: '7 professional categories' },
-            { icon: '🔍', title: 'Natural Language',     sub: '"Find senior engineers at Google"' },
-            { icon: '📇', title: 'Real Contact Data',    sub: 'Email, Phone, LinkedIn URL' },
-            { icon: '📥', title: 'Excel Export',         sub: '2-sheet colour-coded report' },
-            { icon: '✉️', title: 'Outreach Messages',   sub: 'AI-drafted per person' },
-            { icon: '📦', title: 'Full ZIP Support',     sub: 'Reads all LinkedIn export files' },
-          ].map(f => (
-            <div key={f.title} className="li-card" style={{ padding: '12px 14px' }}>
-              <div style={{ fontSize: 20, marginBottom: 5 }}>{f.icon}</div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--li-text)', marginBottom: 2 }}>{f.title}</div>
-              <div style={{ fontSize: 11, color: 'var(--li-text-2)' }}>{f.sub}</div>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   )
