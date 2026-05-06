@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
 
   // GitHub Pages base path
-  base: '/linkedin-network-intelligence/',
+  base: '/networkiq/',
 
   server: {
     port: 3000,
