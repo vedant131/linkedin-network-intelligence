@@ -113,7 +113,7 @@ export default function UploadZone({ onUpload }) {
               fontSize: 13, color: 'var(--li-text-2)',
             }}>
               <span style={{ fontSize: 16, flexShrink: 0 }}>🔒</span>
-              <span>Your data is processed <strong>100% locally</strong> — nothing is sent to any server or cloud. The file never leaves your machine.</span>
+              <span>Your data is processed on a <strong>secure private server</strong> — it is never stored permanently, shared, or used for any purpose other than showing you your results.</span>
             </div>
           </div>
         </div>
