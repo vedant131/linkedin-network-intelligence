@@ -7,11 +7,7 @@ import InsightsDashboard from './components/InsightsDashboard'
 import MessageModal from './components/MessageModal'
 import ContactDrawer from './components/ContactDrawer'
 import ExportButton from './components/ExportButton'
-
-// In production (GitHub Pages), use Render backend. In dev, use Vite proxy.
-const API = (typeof __API_BASE__ !== 'undefined' && __API_BASE__)
-  ? __API_BASE__
-  : ''
+import { apiUrl } from './api'
 
 /* ── Connection age utility ──────────────────────────────────── */
 function connAgeDays(dateStr) {
@@ -77,7 +73,7 @@ export default function App() {
     const form = new FormData(); form.append('file', file)
     try {
       setProcessingMsg('Classifying with AI…')
-      const res = await fetch(`${API}/api/upload`, { method: 'POST', body: form })
+      const res = await fetch(apiUrl('/api/upload'), { method: 'POST', body: form })
       if (!res.ok) { const e = await res.json(); throw new Error(e.detail || 'Upload failed') }
       const data = await res.json()
       await new Promise(r => setTimeout(r, 200))
@@ -92,7 +88,7 @@ export default function App() {
 
   const handleQuery = useCallback(async (query) => {
     if (!sessionId) return
-    const res = await fetch(`${API}/api/query`, {
+    const res = await fetch(apiUrl('/api/query'), {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ session_id: sessionId, query }),
     })

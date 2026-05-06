@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { apiUrl } from '../api'
 
 export default function ExportButton({ sessionId }) {
   const [loading, setLoading] = useState(false)
@@ -8,7 +9,7 @@ export default function ExportButton({ sessionId }) {
     if (!sessionId) return
     setLoading(true)
     try {
-      const res = await fetch('/api/export', {
+      const res = await fetch(apiUrl('/api/export'), {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ session_id: sessionId }),
       })
