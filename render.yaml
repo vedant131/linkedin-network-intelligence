@@ -1,9 +1,9 @@
 services:
   - type: web
-    name: networkiq-backend
+    name: linkedin-network-intelligence
     runtime: python
     rootDir: backend
-    buildCommand: pip install -r requirements.txt && python -m spacy download en_core_web_sm
+    buildCommand: pip install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     plan: free
     envVars:
