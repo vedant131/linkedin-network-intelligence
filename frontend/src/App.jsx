@@ -8,6 +8,7 @@ import MessageModal from './components/MessageModal'
 import ContactDrawer from './components/ContactDrawer'
 import ExportButton from './components/ExportButton'
 import { apiUrl } from './api'
+import { searchConnections } from './queryEngine'
 
 /* ── Connection age utility ──────────────────────────────────── */
 function connAgeDays(dateStr) {
@@ -86,16 +87,13 @@ export default function App() {
     } catch (e) { alert(`Error: ${e.message}`); setView('upload') }
   }, [])
 
-  const handleQuery = useCallback(async (query) => {
-    if (!sessionId) return
-    const res = await fetch(apiUrl('/api/query'), {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ session_id: sessionId, query }),
-    })
-    const data = await res.json()
-    setFiltered(data.results); setQueryLabel(data.interpreted_as)
+  const handleQuery = useCallback((query) => {
+    if (!connections.length) return
+    const { results, label } = searchConnections(connections, query)
+    setFiltered(results)
+    setQueryLabel(label)
     setActiveFilters({})
-  }, [sessionId])
+  }, [connections])
 
   const handleFilterChange = useCallback((filters) => {
     setActiveFilters(filters)

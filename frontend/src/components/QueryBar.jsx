@@ -27,10 +27,10 @@ export default function QueryBar({ onQuery, onReset, label }) {
     return () => document.removeEventListener('mousedown', click)
   }, [])
 
-  const submit = async (q = query) => {
+  const submit = (q = query) => {
     const t = q.trim(); if (!t) { onReset(); setQuery(''); return }
-    setLoading(true); setOpen(false)
-    await onQuery(t); setLoading(false)
+    setOpen(false)
+    onQuery(t)
   }
 
   return (
