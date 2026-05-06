@@ -1,0 +1,409 @@
+/* ═══════════════════════════════════════════════════════════════
+   LINKEDIN DESIGN SYSTEM — Pixel-accurate clone
+   Colors from: linkedin.com source inspection
+═══════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  /* ── LinkedIn exact palette ──────────────────────────────────── */
+  --li-blue:         #0A66C2;
+  --li-blue-hover:   #004182;
+  --li-blue-press:   #00356B;
+  --li-blue-tint:    #EAF0F9;
+  --li-blue-light:   rgba(10, 102, 194, 0.1);
+
+  --li-bg:           #F3F2EF;        /* page background */
+  --li-white:        #FFFFFF;        /* card background */
+
+  --li-border:       rgba(0,0,0,0.08);
+  --li-border-dark:  rgba(0,0,0,0.15);
+
+  --li-text:         rgba(0,0,0,0.9);      /* primary text */
+  --li-text-2:       rgba(0,0,0,0.6);      /* secondary */
+  --li-text-3:       rgba(0,0,0,0.4);      /* placeholder */
+
+  --li-green:        #057642;
+  --li-green-light:  rgba(5, 118, 66, 0.12);
+  --li-gold:         #915907;
+  --li-gold-light:   rgba(145, 89, 7, 0.1);
+  --li-red:          #B24020;
+  --li-red-light:    rgba(178, 64, 32, 0.1);
+  --li-teal:         #0073B1;
+  --li-teal-light:   rgba(0, 115, 177, 0.1);
+
+  /* ── Shadows (LinkedIn style) ────────────────────────────────── */
+  --card-shadow:     0 0 0 1px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.06);
+  --card-shadow-hover: 0 0 0 1px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.12);
+
+  /* ── Radius ──────────────────────────────────────────────────── */
+  --r-pill: 24px;
+  --r-card: 8px;
+  --r-sm:   4px;
+
+  --transition: 0.15s ease;
+}
+
+/* ── Reset ──────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto,
+               Helvetica, Arial, sans-serif;
+  background: var(--li-bg);
+  color: var(--li-text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--li-bg); }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 99px; }
+
+.mono { font-family: 'Courier New', monospace; }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.w-full { width: 100%; }
+
+/* ══════════════════════════════════════
+   LINKEDIN CARD
+══════════════════════════════════════ */
+.li-card {
+  background: var(--li-white);
+  border-radius: var(--r-card);
+  box-shadow: var(--card-shadow);
+  /* no overflow:hidden — would clip fixed-position dropdowns */
+}
+
+/* ══════════════════════════════════════
+   LINKEDIN BUTTONS
+══════════════════════════════════════ */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  border-radius: var(--r-pill);
+  font: 600 14px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  cursor: pointer; border: none; white-space: nowrap;
+  transition: all var(--transition);
+  padding: 8px 20px;
+}
+
+/* Primary — solid blue pill */
+.btn-primary {
+  background: var(--li-blue);
+  color: #fff;
+}
+.btn-primary:hover { background: var(--li-blue-hover); }
+.btn-primary:active { background: var(--li-blue-press); }
+
+/* Outline — LinkedIn "Message" style */
+.btn-outline {
+  background: var(--li-white);
+  color: var(--li-blue);
+  border: 1.5px solid var(--li-blue);
+}
+.btn-outline:hover { background: var(--li-blue-tint); }
+
+/* Ghost — soft hover */
+.btn-ghost {
+  background: transparent;
+  color: var(--li-text-2);
+  border: none;
+}
+.btn-ghost:hover { background: var(--li-bg); color: var(--li-text); border-radius: var(--r-sm); }
+
+/* Success */
+.btn-success {
+  background: var(--li-green);
+  color: #fff;
+}
+.btn-success:hover { filter: brightness(0.92); }
+
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ══════════════════════════════════════
+   INPUTS
+══════════════════════════════════════ */
+.input {
+  background: var(--li-white);
+  border: 1px solid var(--li-border-dark);
+  border-radius: var(--r-card);
+  color: var(--li-text);
+  font: 14px -apple-system, 'Segoe UI', sans-serif;
+  padding: 8px 12px;
+  outline: none; width: 100%;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.input::placeholder { color: var(--li-text-3); }
+.input:focus {
+  border-color: var(--li-blue);
+  box-shadow: 0 0 0 1px var(--li-blue);
+}
+
+/* ══════════════════════════════════════
+   CATEGORY BADGES — LinkedIn pill style
+══════════════════════════════════════ */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: var(--r-pill);
+  font: 600 11px/1 -apple-system, 'Segoe UI', sans-serif;
+}
+.badge-swe       { background: var(--li-teal-light);  color: var(--li-teal); }
+.badge-ds        { background: rgba(82,0,145,0.08);   color: #520091; }
+.badge-hr        { background: var(--li-green-light);  color: var(--li-green); }
+.badge-founder   { background: var(--li-gold-light);   color: var(--li-gold); }
+.badge-student   { background: rgba(0,102,194,0.1);   color: var(--li-blue); }
+.badge-marketing { background: rgba(178,64,32,0.08);  color: var(--li-red); }
+.badge-other     { background: rgba(0,0,0,0.06);      color: var(--li-text-2); }
+
+/* ══════════════════════════════════════
+   TAGS — small LinkedIn-style chips
+══════════════════════════════════════ */
+.tag {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: var(--r-pill);
+  font: 500 11px/1 -apple-system, 'Segoe UI', sans-serif;
+  white-space: nowrap; border: 1px solid;
+}
+.tag-hiring   { background: var(--li-green-light); color: var(--li-green);  border-color: rgba(5,118,66,0.25); }
+.tag-tech     { background: var(--li-teal-light);  color: var(--li-teal);   border-color: rgba(0,115,177,0.25); }
+.tag-business { background: var(--li-gold-light);  color: var(--li-gold);   border-color: rgba(145,89,7,0.2); }
+.tag-hv       { background: var(--li-blue-light);  color: var(--li-blue);   border-color: rgba(10,102,194,0.2); }
+.tag-startup  { background: var(--li-red-light);   color: var(--li-red);    border-color: rgba(178,64,32,0.2); }
+.tag-academia { background: rgba(82,0,145,0.08);  color: #520091;          border-color: rgba(82,0,145,0.2); }
+
+/* ══════════════════════════════════════
+   SENIORITY DOTS
+══════════════════════════════════════ */
+.seniority-dot            { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.seniority-dot-intern     { background: rgba(0,0,0,0.25); }
+.seniority-dot-junior     { background: var(--li-teal); }
+.seniority-dot-mid        { background: var(--li-blue); }
+.seniority-dot-senior     { background: var(--li-gold); }
+.seniority-dot-lead       { background: var(--li-green); }
+.seniority-dot-exec       { background: #B24020; }
+
+/* ══════════════════════════════════════
+   SCORE PILL
+══════════════════════════════════════ */
+.score-pill {
+  font: 600 11px/1 monospace;
+  padding: 2px 7px; border-radius: var(--r-sm);
+}
+.score-high   { color: var(--li-green); background: var(--li-green-light); }
+.score-mid    { color: var(--li-gold);  background: var(--li-gold-light); }
+.score-low    { color: var(--li-text-2); background: rgba(0,0,0,0.05); }
+
+/* ══════════════════════════════════════
+   STAT CARDS — LinkedIn "glance" style
+══════════════════════════════════════ */
+.stat-card {
+  background: var(--li-white);
+  border-radius: var(--r-card);
+  box-shadow: var(--card-shadow);
+  padding: 16px 20px;
+  transition: box-shadow var(--transition);
+  cursor: default;
+}
+.stat-card:hover { box-shadow: var(--card-shadow-hover); }
+.stat-value {
+  font: 700 28px/1 -apple-system, 'Segoe UI', sans-serif;
+  letter-spacing: -0.02em;
+}
+.stat-label {
+  font: 400 12px/1 -apple-system, 'Segoe UI', sans-serif;
+  color: var(--li-text-2);
+  margin-top: 5px;
+}
+
+/* Accent lines (top border) */
+.stat-card-blue  { border-top: 3px solid var(--li-blue); }
+.stat-card-teal  { border-top: 3px solid var(--li-teal); }
+.stat-card-green { border-top: 3px solid var(--li-green); }
+.stat-card-gold  { border-top: 3px solid var(--li-gold); }
+
+/* ══════════════════════════════════════
+   UPLOAD ZONE
+══════════════════════════════════════ */
+.upload-zone {
+  border: 2px dashed rgba(0,0,0,0.2);
+  border-radius: var(--r-card);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.upload-zone:hover, .upload-zone.dragging {
+  border-color: var(--li-blue);
+  background: var(--li-blue-tint);
+}
+
+/* ══════════════════════════════════════
+   FILTER CHIP
+══════════════════════════════════════ */
+.filter-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 14px; border-radius: var(--r-pill);
+  border: 1px solid var(--li-border-dark);
+  background: var(--li-white);
+  font: 500 13px -apple-system, 'Segoe UI', sans-serif;
+  color: var(--li-text-2); cursor: pointer; white-space: nowrap;
+  transition: all var(--transition);
+  box-shadow: var(--card-shadow);
+}
+.filter-chip:hover   { border-color: var(--li-blue); color: var(--li-blue); background: var(--li-blue-tint); }
+.filter-chip.active  { border-color: var(--li-blue); color: var(--li-blue); background: var(--li-blue-tint); font-weight: 700; }
+
+/* ══════════════════════════════════════
+   CONTACT DRAWER — LinkedIn profile panel
+══════════════════════════════════════ */
+.drawer-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.5);
+  animation: fadeIn 0.15s ease;
+}
+.drawer {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: 420px; z-index: 201;
+  background: var(--li-white);
+  border-left: 1px solid var(--li-border);
+  overflow-y: auto;
+  animation: slideInRight 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+}
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+.drawer-header {
+  position: sticky; top: 0; z-index: 5;
+  background: var(--li-white);
+  border-bottom: 1px solid var(--li-border);
+  padding: 16px 20px;
+}
+
+.contact-field {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 0; border-bottom: 1px solid var(--li-border);
+}
+.contact-field:last-child { border-bottom: none; }
+.contact-field-icon {
+  width: 32px; height: 32px; flex-shrink: 0;
+  background: var(--li-bg);
+  border: 1px solid var(--li-border);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+.contact-field-label {
+  font: 600 11px/1 -apple-system, 'Segoe UI', sans-serif;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--li-text-2); margin-bottom: 4px;
+}
+.contact-field-value {
+  font: 14px -apple-system, 'Segoe UI', sans-serif;
+  color: var(--li-text); word-break: break-all;
+}
+.contact-field-value a { color: var(--li-blue); text-decoration: none; }
+.contact-field-value a:hover { text-decoration: underline; color: var(--li-blue-hover); }
+
+/* ══════════════════════════════════════
+   MODAL
+══════════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,0.6);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  animation: fadeIn 0.15s ease;
+}
+.modal-box {
+  background: var(--li-white);
+  border-radius: var(--r-card);
+  padding: 24px;
+  width: 100%; max-width: 520px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.12), 0 8px 32px rgba(0,0,0,0.2);
+  animation: scaleUp 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes scaleUp {
+  from { transform: scale(0.97); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+/* ══════════════════════════════════════
+   DATA TABLE — LinkedIn search results
+══════════════════════════════════════ */
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th {
+  padding: 10px 16px;
+  font: 600 11px/1 -apple-system, 'Segoe UI', sans-serif;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--li-text-2);
+  background: var(--li-white);
+  border-bottom: 1px solid var(--li-border);
+  text-align: left; white-space: nowrap;
+  cursor: pointer; user-select: none;
+  position: sticky; top: 0; z-index: 5;
+}
+.data-table th:hover { color: var(--li-blue); }
+.data-table th.sorted { color: var(--li-blue); }
+.data-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--li-border);
+  vertical-align: middle; font-size: 14px;
+}
+.data-table tr:hover td { background: var(--li-bg); cursor: pointer; }
+.data-table tr:last-child td { border-bottom: none; }
+
+/* ══════════════════════════════════════
+   AVATAR — LinkedIn circular style
+══════════════════════════════════════ */
+.avatar {
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font: 700 14px/1 -apple-system, 'Segoe UI', sans-serif;
+  color: #fff; flex-shrink: 0;
+  border: 2px solid var(--li-white);
+  box-shadow: 0 0 0 2px var(--li-border);
+}
+
+/* ══════════════════════════════════════
+   BAR ROWS
+══════════════════════════════════════ */
+.bar-row { display: grid; grid-template-columns: 120px 1fr 36px; align-items: center; gap: 10px; padding: 5px 0; }
+.bar-track { height: 5px; background: var(--li-bg); border-radius: 99px; overflow: hidden; }
+.bar-fill  { height: 100%; border-radius: 99px; transition: width 0.9s ease; }
+
+/* ══════════════════════════════════════
+   SECTION LABEL
+══════════════════════════════════════ */
+.eyebrow {
+  font: 600 11px/1 -apple-system, 'Segoe UI', sans-serif;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--li-text-2);
+}
+
+/* ══════════════════════════════════════
+   SPINNER
+══════════════════════════════════════ */
+.spinner {
+  width: 16px; height: 16px; flex-shrink: 0;
+  border: 2px solid rgba(0,0,0,0.12);
+  border-top-color: var(--li-blue);
+  border-radius: 50%;
+  animation: spin 0.65s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ══════════════════════════════════════
+   ANIMATIONS
+══════════════════════════════════════ */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes dropIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+
+.anim-in   { animation: fadeUp 0.28s ease both; }
+.anim-fade { animation: fadeIn 0.18s ease both; }
+
+/* ── LinkedIn divider ───────────────────────────────────────────── */
+.li-divider {
+  height: 1px; background: var(--li-border); margin: 8px 0;
+}

@@ -1,0 +1,34 @@
+"""Application configuration — reads from .env file."""
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).parent.parent / ".env")
+
+
+class Settings:
+    ai_mode: str = os.getenv("AI_MODE", "offline")          # "openai" | "offline"
+    openai_api_key: str = os.getenv("OPENAI_API_KEY", "")
+    openai_model: str = "gpt-4o-mini"
+    company_tier_scoring: bool = os.getenv("COMPANY_TIER_SCORING", "true").lower() == "true"
+    batch_size: int = 50  # connections per OpenAI call
+
+    # Tier-1 company list for prestige scoring
+    TIER_1_COMPANIES: set = {
+        "google", "meta", "amazon", "apple", "microsoft", "netflix",
+        "openai", "anthropic", "deepmind", "nvidia", "salesforce",
+        "stripe", "airbnb", "uber", "lyft", "twitter", "linkedin",
+        "spotify", "adobe", "oracle", "ibm", "intel", "qualcomm",
+        "y combinator", "sequoia", "a16z", "andreessen horowitz",
+        "tesla", "spacex", "databricks", "snowflake", "figma", "canva",
+        "flipkart", "infosys", "tcs", "wipro", "accenture", "deloitte",
+    }
+
+    TIER_2_COMPANIES: set = {
+        "hubspot", "shopify", "atlassian", "twilio", "datadog",
+        "elastic", "hashicorp", "mongodb", "redis", "confluent",
+        "kpmg", "mckinsey", "bcg", "bain",
+    }
+
+
+settings = Settings()
