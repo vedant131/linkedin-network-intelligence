@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
 
     // GitHub Pages deploys to /repo-name/ so set base if needed
-    // base: '/linkedin-network-intelligence/',  // ← uncomment & set to your repo name
+    base: '/linkedin-network-intelligence/',
 
     server: {
       port: 3000,
