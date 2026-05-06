@@ -36,5 +36,6 @@ backend/data/*.csv
 backend/data/*.zip
 *.zip
 
-# spacy models (large, downloaded at runtime)
-backend/models/
+# spacy models (large binary files, downloaded at runtime)
+backend/models/*.bin
+backend/models/vocab/
