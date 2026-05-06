@@ -77,7 +77,7 @@ export default function App() {
     const form = new FormData(); form.append('file', file)
     try {
       setProcessingMsg('Classifying with AI…')
-      const res = await fetch(\\/api/upload', { method: 'POST', body: form })
+      const res = await fetch(`${API}/api/upload`, { method: 'POST', body: form })
       if (!res.ok) { const e = await res.json(); throw new Error(e.detail || 'Upload failed') }
       const data = await res.json()
       await new Promise(r => setTimeout(r, 200))
@@ -92,7 +92,7 @@ export default function App() {
 
   const handleQuery = useCallback(async (query) => {
     if (!sessionId) return
-    const res = await fetch(\\/api/query', {
+    const res = await fetch(`${API}/api/query`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ session_id: sessionId, query }),
     })
