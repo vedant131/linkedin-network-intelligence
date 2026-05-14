@@ -21,6 +21,9 @@ class Settings:
     twilio_whatsapp_from:  str = os.getenv("TWILIO_WHATSAPP_FROM", "whatsapp:+14155238886")
     website_url:           str = os.getenv("WEBSITE_URL", "http://localhost:3000")
 
+    # ── Contact Enrichment (Hunter.io) ─────────────────────────────────────────
+    hunter_api_key:        str = os.getenv("HUNTER_API_KEY", "")
+
     # Tier-1 company list for prestige scoring
     TIER_1_COMPANIES: set = {
         "google", "meta", "amazon", "apple", "microsoft", "netflix",

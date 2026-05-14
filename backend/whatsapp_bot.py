@@ -115,6 +115,60 @@ def handle_message(from_phone: str, body: str, website_url: str = WEBSITE_URL) -
             top_cos = []
         return _twiml(format_top_companies(top_cos))
 
+    # ── Enrich Contact Command ─────────────────────────────────────────────────
+    if text_lower.startswith(("get email ", "get email for ", "find email ", "find email for ", "enrich ")):
+        target_name = text_lower
+        for prefix in ("get email for ", "find email for ", "get email ", "find email ", "enrich "):
+            if target_name.startswith(prefix):
+                target_name = target_name[len(prefix):].strip()
+                break
+                
+        df = load_user_data(from_phone)
+        if df is None:
+            return _twiml("⚠️ Could not load your data.")
+            
+        # Find connection by name
+        if 'FullName' in df.columns:
+            matches = df[df['FullName'].str.lower().str.contains(target_name.lower(), na=False)]
+        else:
+            return _twiml("⚠️ Missing name column in database. Please re-upload.")
+            
+        if matches.empty:
+            return _twiml(f"❌ Couldn't find anyone named '{target_name}' in your connections.")
+            
+        row = matches.iloc[0]
+        full_name = str(row.get('FullName', row.get('full_name', '')))
+        company = str(row.get('Company', row.get('company_clean', '')))
+        existing_email = str(row.get('Email Address', row.get('email', '')))
+        
+        if existing_email and existing_email.strip() and existing_email.lower() != "nan":
+            return _twiml(f"✅ You already have the email for {full_name}:\n\n📧 {existing_email}")
+            
+        if not company or company.lower() == "nan":
+            return _twiml(f"❌ Cannot find email for {full_name} because they don't have a company listed.")
+            
+        # Call Hunter API
+        import hunter_api
+        from config import settings
+        
+        if not settings.hunter_api_key:
+            return _twiml("❌ Enrichment API key is not configured. Please add HUNTER_API_KEY to your environment variables.")
+            
+        first_name = full_name.split()[0]
+        last_name = " ".join(full_name.split()[1:]) if len(full_name.split()) > 1 else ""
+        
+        result = hunter_api.find_email(first_name, last_name, company, settings.hunter_api_key)
+        
+        if result:
+            email = result["email"]
+            score = result["score"]
+            # Save it
+            from db import update_user_connection_email
+            update_user_connection_email(from_phone, full_name, company, email)
+            return _twiml(f"✨ Found email for {full_name} at {company}!\n\n📧 {email}\n\n_Confidence: {score}%_")
+        else:
+            return _twiml(f"❌ Sorry, couldn't find a verified corporate email for {full_name} at {company}.")
+
     # ── Natural language query ─────────────────────────────────────────────────
     df = load_user_data(from_phone)
     if df is None:

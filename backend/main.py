@@ -272,6 +272,43 @@ async def get_insights(session_id: str):
     return _compute_insights(df)
 
 
+@app.post("/api/enrich/{session_id}/{connection_id}")
+async def enrich_contact(session_id: str, connection_id: int):
+    """Hits Hunter.io API to find contact's email."""
+    df = _sessions.get(session_id)
+    if df is None:
+        raise HTTPException(404, "Session not found.")
+        
+    try:
+        row = df.loc[connection_id]
+    except KeyError:
+        raise HTTPException(404, "Connection not found.")
+        
+    name = str(row.get("full_name", ""))
+    company = str(row.get("company_clean", row.get("company", "")))
+    
+    if not name or not company:
+        raise HTTPException(400, "Name and company required for enrichment.")
+        
+    first_name = name.split()[0]
+    last_name = " ".join(name.split()[1:]) if len(name.split()) > 1 else ""
+    
+    import hunter_api
+    result = hunter_api.find_email(first_name, last_name, company, settings.hunter_api_key)
+    
+    if result:
+        # Update in-memory session
+        df.at[connection_id, 'Email Address'] = result["email"]
+        df.at[connection_id, 'email'] = result["email"]
+        
+        # If user has a phone linked, update SQLite too
+        # We need to find the phone. Let's look up phone in the db by matching data_json (expensive), 
+        # or better: we don't have phone here. But wait, we can just return the email.
+        return {"email": result["email"], "score": result["score"]}
+        
+    raise HTTPException(404, "Email not found via enrichment API.")
+
+
 # ── WhatsApp Webhook ───────────────────────────────────────────────────────────
 
 @app.post("/api/whatsapp")

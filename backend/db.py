@@ -86,6 +86,33 @@ def load_user_data(phone: str) -> Optional[pd.DataFrame]:
     return pd.read_json(io.StringIO(row["data_json"]), orient="records")
 
 
+def update_user_connection_email(phone: str, full_name: str, company: str, email: str) -> bool:
+    """
+    Updates the email for a specific connection in the user's stored DataFrame.
+    Matches primarily by full name and company to ensure accuracy.
+    """
+    df = load_user_data(phone)
+    if df is None:
+        return False
+        
+    if 'FullName' in df.columns:
+        mask = (df['FullName'].str.lower() == full_name.lower()) & (df['Company'].astype(str).str.lower().str.contains(company.lower(), na=False))
+        if not mask.any():
+            mask = (df['FullName'].str.lower() == full_name.lower())
+    else:
+        return False
+        
+    if not mask.any():
+        return False
+        
+    if 'Email Address' not in df.columns:
+        df['Email Address'] = ""
+        
+    df.loc[mask, 'Email Address'] = email
+    save_user_data(phone, df)
+    return True
+
+
 def get_user_info(phone: str) -> Optional[dict]:
     """Return user metadata (not the full DataFrame)."""
     with _get_conn() as conn:

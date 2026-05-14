@@ -153,9 +153,14 @@ function Section({ title, children }) {
 }
 
 /* ── Main Component ─────────────────────────────────────────── */
+/* ── Main Component ─────────────────────────────────────────── */
 export default function ContactDrawer({
-  connection: c, onClose, onMessage, onFindSimilar, allConnections = [],
+  connection: c, sessionId, onClose, onMessage, onFindSimilar, allConnections = [],
 }) {
+  const [isEnriching, setIsEnriching] = useState(false)
+  const [enrichedEmail, setEnrichedEmail] = useState(null)
+  const [enrichError, setEnrichError] = useState(null)
+  
   if (!c) return null
 
   const hasRealUrl = c.linkedin_url && c.linkedin_url !== '' && c.linkedin_url !== 'nan'
@@ -165,7 +170,23 @@ export default function ContactDrawer({
   const googleUrl  = `https://www.google.com/search?q=${encodeURIComponent(`${c.full_name} ${c.company} LinkedIn`)}`
 
   // ── Connection's own email ONLY — never account email ──
-  const connEmail = (c.email && c.email !== '' && c.email !== 'nan') ? c.email : null
+  const connEmail = enrichedEmail || ((c.email && c.email !== '' && c.email !== 'nan') ? c.email : null)
+  
+  const handleEnrich = async () => {
+    setIsEnriching(true); setEnrichError(null)
+    try {
+      const { apiUrl } = await import('../api.js')
+      const res = await fetch(apiUrl(`/api/enrich/${sessionId}/${c.id}`), { method: 'POST' })
+      if (!res.ok) { const e = await res.json(); throw new Error(e.detail || 'Email not found') }
+      const data = await res.json()
+      setEnrichedEmail(data.email)
+      c.email = data.email // Mutate local object so it stays if drawer is closed/opened
+    } catch (e) {
+      setEnrichError(e.message)
+    } finally {
+      setIsEnriching(false)
+    }
+  }
 
   const age = parseConnectionAge(c.connected_on)
   const score = c.score ?? 0
@@ -292,9 +313,22 @@ export default function ContactDrawer({
             {connEmail ? (
               <a href={`mailto:${connEmail}`}>{connEmail}</a>
             ) : (
-              <span style={{ color: 'rgba(0,0,0,0.4)', fontSize: 13 }}>
-                Not shared in LinkedIn export
-              </span>
+              <div>
+                {isEnriching ? (
+                  <div style={{ fontSize: 12, color: 'var(--li-blue)' }}>Searching databases...</div>
+                ) : (
+                  <>
+                    <button onClick={handleEnrich} disabled={!c.company || c.company === 'nan'} style={{
+                      background: 'rgba(10,102,194,0.1)', color: 'var(--li-blue)',
+                      border: 'none', borderRadius: 20, padding: '4px 10px',
+                      fontSize: 12, fontWeight: 600, cursor: c.company && c.company !== 'nan' ? 'pointer' : 'not-allowed',
+                      opacity: c.company && c.company !== 'nan' ? 1 : 0.5,
+                    }}>✨ Find Email</button>
+                    {(!c.company || c.company === 'nan') && <div style={{fontSize: 11, color: 'rgba(0,0,0,0.4)', marginTop: 4}}>Company required to find email.</div>}
+                    {enrichError && <div style={{ fontSize: 11, color: 'red', marginTop: 4 }}>{enrichError}</div>}
+                  </>
+                )}
+              </div>
             )}
           </Field>
 
