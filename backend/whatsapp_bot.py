@@ -116,12 +116,19 @@ def handle_message(from_phone: str, body: str, website_url: str = WEBSITE_URL) -
         return _twiml(format_top_companies(top_cos))
 
     # ── Enrich Contact Command ─────────────────────────────────────────────────
-    if text_lower.startswith(("get email ", "get email for ", "find email ", "find email for ", "enrich ")):
-        target_name = text_lower
-        for prefix in ("get email for ", "find email for ", "get email ", "find email ", "enrich "):
-            if target_name.startswith(prefix):
-                target_name = target_name[len(prefix):].strip()
-                break
+    import re
+    # Match patterns like: "get email for Raman", "i want gmail of Raman", "whats the email of Raman", "enrich Raman"
+    email_match = re.search(r'(?:email|gmail|contact info)(?:\s+for|\s+of)?\s+([a-zA-Z\s]+)', text_lower)
+    is_enrich_cmd = text_lower.startswith("enrich ")
+    
+    if email_match or is_enrich_cmd:
+        if is_enrich_cmd:
+            target_name = text_lower[7:].strip()
+        else:
+            target_name = email_match.group(1).strip()
+            
+        # Clean up common filler words at the end
+        target_name = re.sub(r'\s+(please|pls|thx|thanks)$', '', target_name).strip()
                 
         df = load_user_data(from_phone)
         if df is None:
@@ -129,7 +136,14 @@ def handle_message(from_phone: str, body: str, website_url: str = WEBSITE_URL) -
             
         # Find connection by name
         if 'FullName' in df.columns:
-            matches = df[df['FullName'].str.lower().str.contains(target_name.lower(), na=False)]
+            # Try exact first name match if it's a single word, else substring
+            if " " not in target_name:
+                # If they just said "Raman", try matching first name specifically or substring
+                matches = df[df['FullName'].str.lower().str.contains(r'\b' + re.escape(target_name.lower()) + r'\b', na=False)]
+                if matches.empty:
+                    matches = df[df['FullName'].str.lower().str.contains(target_name.lower(), na=False)]
+            else:
+                matches = df[df['FullName'].str.lower().str.contains(target_name.lower(), na=False)]
         else:
             return _twiml("⚠️ Missing name column in database. Please re-upload.")
             
