@@ -3,7 +3,7 @@
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-vedant131.github.io%2Fnetworkiq-0A66C2?style=for-the-badge&logo=github)](https://vedant131.github.io/networkiq/)
 [![Backend](https://img.shields.io/badge/Backend-Render-46E3B7?style=for-the-badge&logo=render)](https://linkedin-network-intelligence.onrender.com)
-[![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
+[![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)](LICENSE)
 
 NetworkIQ transforms your raw LinkedIn data export into a fully searchable, intelligent CRM. Access your professional network on the web dashboard or text the Twilio-powered AI bot directly on WhatsApp to query your network and automatically find missing contact info.
 
@@ -177,7 +177,8 @@ Your LinkedIn data is parsed on the server and stored in a private SQLite databa
 
 ## 📄 License
 
-This project is licensed under the [MIT License](LICENSE).
+Copyright (c) 2024 Vedant. All Rights Reserved.
+This project is proprietary. Copying, distribution, or modification is strictly prohibited. See the [LICENSE](LICENSE) file for details.
 
 ---
 
