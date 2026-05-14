@@ -275,39 +275,44 @@ async def get_insights(session_id: str):
 
 @app.post("/api/enrich/{session_id}/{connection_id}")
 async def enrich_contact(session_id: str, connection_id: int):
-    """Hits Hunter.io API to find contact's email."""
-    df = _sessions.get(session_id)
-    if df is None:
-        raise HTTPException(404, "Session not found.")
-        
+    """Hits enrichment APIs to find contact's email."""
     try:
-        row = df.loc[connection_id]
-    except KeyError:
-        raise HTTPException(404, "Connection not found.")
+        df = _sessions.get(session_id)
+        if df is None:
+            raise HTTPException(404, "Session not found. Please refresh and re-upload your file.")
+            
+        try:
+            row = df.loc[connection_id]
+        except KeyError:
+            raise HTTPException(404, "Connection not found.")
+            
+        name = str(row.get("full_name", ""))
+        company = str(row.get("company_clean", row.get("company", "")))
         
-    name = str(row.get("full_name", ""))
-    company = str(row.get("company_clean", row.get("company", "")))
-    
-    if not name or not company:
-        raise HTTPException(400, "Name and company required for enrichment.")
+        if not name or not company or company.lower() == "nan":
+            raise HTTPException(400, "Name and company required for enrichment.")
+            
+        first_name = name.split()[0]
+        last_name = " ".join(name.split()[1:]) if len(name.split()) > 1 else ""
         
-    first_name = name.split()[0]
-    last_name = " ".join(name.split()[1:]) if len(name.split()) > 1 else ""
-    
-    import enrichment
-    result = enrichment.find_email_waterfall(first_name, last_name, company, settings)
-    
-    if result:
-        # Update in-memory session
-        df.at[connection_id, 'Email Address'] = result["email"]
-        df.at[connection_id, 'email'] = result["email"]
+        import enrichment
+        result = enrichment.find_email_waterfall(first_name, last_name, company, settings)
         
-        # If user has a phone linked, update SQLite too
-        # We need to find the phone. Let's look up phone in the db by matching data_json (expensive), 
-        # or better: we don't have phone here. But wait, we can just return the email.
-        return {"email": result["email"], "score": result["score"], "source": result["source"]}
-        
-    raise HTTPException(404, "Email not found via enrichment API.")
+        if result:
+            # Update in-memory session
+            df.at[connection_id, 'Email Address'] = result["email"]
+            df.at[connection_id, 'email'] = result["email"]
+            
+            return {"email": result["email"], "score": result["score"], "source": result["source"]}
+            
+        raise HTTPException(404, "Email not found via enrichment APIs.")
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        error_msg = f"Internal Error: {str(e)}\n{traceback.format_exc()}"
+        print(error_msg)
+        raise HTTPException(500, error_msg)
 
 
 # ── WhatsApp Webhook ───────────────────────────────────────────────────────────
