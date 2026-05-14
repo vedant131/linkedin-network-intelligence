@@ -294,8 +294,8 @@ async def enrich_contact(session_id: str, connection_id: int):
     first_name = name.split()[0]
     last_name = " ".join(name.split()[1:]) if len(name.split()) > 1 else ""
     
-    import hunter_api
-    result = hunter_api.find_email(first_name, last_name, company, settings.hunter_api_key)
+    import enrichment
+    result = enrichment.find_email_waterfall(first_name, last_name, company, settings)
     
     if result:
         # Update in-memory session
@@ -305,7 +305,7 @@ async def enrich_contact(session_id: str, connection_id: int):
         # If user has a phone linked, update SQLite too
         # We need to find the phone. Let's look up phone in the db by matching data_json (expensive), 
         # or better: we don't have phone here. But wait, we can just return the email.
-        return {"email": result["email"], "score": result["score"]}
+        return {"email": result["email"], "score": result["score"], "source": result["source"]}
         
     raise HTTPException(404, "Email not found via enrichment API.")
 

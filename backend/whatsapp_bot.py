@@ -161,27 +161,25 @@ def handle_message(from_phone: str, body: str, website_url: str = WEBSITE_URL) -
         if not company or company.lower() == "nan":
             return _twiml(f"❌ Cannot find email for {full_name} because they don't have a company listed.")
             
-        # Call Hunter API
-        import hunter_api
+        # Call Waterfall API
+        import enrichment
         from config import settings
         
-        if not settings.hunter_api_key:
-            return _twiml("❌ Enrichment API key is not configured. Please add HUNTER_API_KEY to your environment variables.")
-            
         first_name = full_name.split()[0]
         last_name = " ".join(full_name.split()[1:]) if len(full_name.split()) > 1 else ""
         
-        result = hunter_api.find_email(first_name, last_name, company, settings.hunter_api_key)
+        result = enrichment.find_email_waterfall(first_name, last_name, company, settings)
         
         if result:
             email = result["email"]
             score = result["score"]
+            source = result.get("source", "API")
             # Save it
             from db import update_user_connection_email
             update_user_connection_email(from_phone, full_name, company, email)
-            return _twiml(f"✨ Found email for {full_name} at {company}!\n\n📧 {email}\n\n_Confidence: {score}%_")
+            return _twiml(f"✨ Found email for {full_name} at {company}!\n\n📧 {email}\n\n_Found via {source} (Confidence: {score}%)_")
         else:
-            return _twiml(f"❌ Sorry, couldn't find a verified corporate email for {full_name} at {company}.")
+            return _twiml(f"❌ Sorry, our waterfall engines couldn't find a verified corporate email for {full_name} at {company}.")
 
     # ── Natural language query ─────────────────────────────────────────────────
     df = load_user_data(from_phone)
