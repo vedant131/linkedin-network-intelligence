@@ -159,8 +159,10 @@ export default function UploadZone({ onUpload }) {
         {/* Body */}
         <div style={{ padding: '18px 18px 14px', background: '#fff' }}>
           <div style={{ fontSize: 13, color: 'var(--li-text-2)', marginBottom: 14, lineHeight: 1.5 }}>
-            Enter your WhatsApp number once — your data will be saved under it.<br/>
-            <strong>After this, just text the bot anytime:</strong> <em>"who works at Google?"</em>
+            Enter your WhatsApp number to link your 24/7 AI bot.
+            <div style={{ padding: '8px 12px', background: '#fff8e1', border: '1px solid #ffe082', borderRadius: '6px', marginTop: '8px', color: '#8f6e00' }}>
+              <strong>⚠️ Twilio Sandbox Step:</strong> Before clicking upload, you must text <strong>join sometime-certainly</strong> to <strong>+1 415 523 8886</strong> from your WhatsApp to allow the bot to message you!
+            </div>
           </div>
 
           {/* Phone input */}
