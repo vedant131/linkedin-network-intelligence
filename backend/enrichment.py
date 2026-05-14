@@ -64,13 +64,13 @@ def _find_via_snov(first_name: str, last_name: str, company: str, client_id: str
     
     # 1. Get access token
     token_url = "https://api.snov.io/v1/oauth/access_token"
-    token_payload = json.dumps({
+    token_payload = urllib.parse.urlencode({
         "grant_type": "client_credentials",
         "client_id": client_id,
         "client_secret": client_secret
     }).encode("utf-8")
     
-    token_data = _fetch_json(token_url, {"Content-Type": "application/json"}, token_payload)
+    token_data = _fetch_json(token_url, {"Content-Type": "application/x-www-form-urlencoded"}, token_payload)
     if not token_data or "access_token" not in token_data:
         return None
         
