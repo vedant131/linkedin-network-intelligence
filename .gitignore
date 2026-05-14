@@ -39,3 +39,7 @@ backend/data/*.zip
 # spacy models (large binary files, downloaded at runtime)
 backend/models/*.bin
 backend/models/vocab/
+
+# SQLite database (contains user data — never commit)
+*.db
+networkiq.db

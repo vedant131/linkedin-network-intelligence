@@ -68,10 +68,14 @@ export default function App() {
   const [foundFiles, setFoundFiles]       = useState(null)
   const [fileType, setFileType]           = useState('csv')
   const [activeFilters, setActiveFilters] = useState({})
+  const [whatsappLinked, setWhatsappLinked] = useState(false)
+  const [linkedPhone, setLinkedPhone]       = useState('')
 
-  const handleUpload = useCallback(async (file) => {
+  const handleUpload = useCallback(async (file, phone = '') => {
     setView('processing'); setProcessingMsg('Reading your connections…')
-    const form = new FormData(); form.append('file', file)
+    const form = new FormData()
+    form.append('file', file)
+    if (phone) form.append('phone', phone)
     try {
       setProcessingMsg('Classifying with AI…')
       const res = await fetch(apiUrl('/api/upload'), { method: 'POST', body: form })
@@ -83,6 +87,8 @@ export default function App() {
       setQueryLabel(`All ${data.total} connections`)
       setFoundFiles(data.found_files || null)
       setFileType(data.file_type || 'csv')
+      setWhatsappLinked(data.whatsapp_linked || false)
+      setLinkedPhone(phone)
       setView('dashboard')
     } catch (e) { alert(`Error: ${e.message}`); setView('upload') }
   }, [])
@@ -154,6 +160,9 @@ export default function App() {
 
         {/* ── ZIP success banner ── */}
         {fileType === 'zip' && foundFiles && <ZipBanner foundFiles={foundFiles} />}
+
+        {/* ── WhatsApp linked banner ── */}
+        {whatsappLinked && <WhatsAppBanner phone={linkedPhone} />}
 
         {/* ── Smart Recommendations ── */}
         {recommendations.length > 0 && (
@@ -262,6 +271,56 @@ function ZipBanner({ foundFiles }) {
 function Pill({ text }) {
   return <span style={{ background: 'rgba(5,118,66,0.1)', color: '#057642', borderRadius: 99, padding: '1px 8px', fontWeight: 600, fontSize: 11 }}>{text}</span>
 }
+
+/* ── WhatsApp Linked Banner ──────────────────────────────────── */
+function WhatsAppBanner({ phone }) {
+  const [dismissed, setDismissed] = useState(false)
+  if (dismissed) return null
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'flex-start', gap: 12,
+      padding: '12px 16px', borderRadius: 8, marginBottom: 12,
+      background: 'linear-gradient(135deg, rgba(37,211,102,0.1) 0%, rgba(18,140,126,0.08) 100%)',
+      border: '1.5px solid rgba(37,211,102,0.4)',
+    }}>
+      <span style={{ fontSize: 28, flexShrink: 0 }}>💬</span>
+      <div style={{ flex: 1 }}>
+        <div style={{ fontWeight: 700, fontSize: 14, color: '#128C7E', marginBottom: 4 }}>
+          ✅ WhatsApp Bot Connected! — {phone}
+        </div>
+        <div style={{ fontSize: 13, color: 'rgba(0,0,0,0.65)', marginBottom: 8 }}>
+          Your connections are saved. Text the bot anytime — even after closing this page.
+        </div>
+        <div style={{
+          display: 'flex', flexWrap: 'wrap', gap: 6,
+        }}>
+          {[
+            'who works at Google?',
+            'find recruiters',
+            'show senior engineers',
+            'stats',
+          ].map(q => (
+            <span key={q} style={{
+              background: 'rgba(37,211,102,0.15)', border: '1px solid rgba(37,211,102,0.3)',
+              borderRadius: 20, padding: '3px 10px', fontSize: 12,
+              color: '#128C7E', fontStyle: 'italic',
+            }}>"{q}"</span>
+          ))}
+        </div>
+        <div style={{ marginTop: 10, fontSize: 12, color: 'rgba(0,0,0,0.45)' }}>
+          💡 Text the Twilio WhatsApp sandbox number to try it now →
+          <strong style={{ marginLeft: 4 }}>+1 415 523 8886</strong>
+        </div>
+      </div>
+      <button onClick={() => setDismissed(true)} style={{
+        background: 'none', border: 'none', cursor: 'pointer',
+        color: 'rgba(0,0,0,0.3)', fontSize: 16, flexShrink: 0,
+        padding: 4,
+      }}>✕</button>
+    </div>
+  )
+}
+
 
 /* ── Smart Recommendations ──────────────────────────────────── */
 function SmartRecommendations({ recs, open, onToggle, onContact, onMessage }) {

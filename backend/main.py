@@ -7,9 +7,9 @@ from collections import Counter
 from typing import Optional
 
 import pandas as pd
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, Form, UploadFile, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, PlainTextResponse
 import io
 
 from config import settings
@@ -21,8 +21,17 @@ from pipeline.tagger import tag_dataframe
 from pipeline.ranker import rank_dataframe
 from pipeline.query_engine import process_query
 from exporters.excel_exporter import build_excel
+import db
+from whatsapp_bot import handle_message
 
 app = FastAPI(title="LinkedIn Network Intelligence API", version="1.0.0")
+
+
+@app.on_event("startup")
+def startup_event():
+    """Initialise SQLite on startup."""
+    db.init_db()
+    print("[startup] SQLite DB initialised.")
 
 app.add_middleware(
     CORSMiddleware,
@@ -96,12 +105,18 @@ def health():
 
 
 @app.post("/api/upload")
-async def upload(file: UploadFile = File(...)):
+async def upload(
+    file: UploadFile = File(...),
+    phone: Optional[str] = Form(None),   # WhatsApp number, e.g. +919XXXXXXXXX
+):
     """
     Ingest a LinkedIn connections export.
     Accepts:
       - Connections.csv  (plain CSV from the export ZIP)
       - Complete_LinkedInDataExport_*.zip  (the entire LinkedIn ZIP)
+
+    Optional `phone` field links processed data to a WhatsApp number so the
+    user can query their network via the WhatsApp bot anytime.
     """
     fname   = (file.filename or "").lower()
     is_zip  = fname.endswith(".zip")
@@ -110,7 +125,7 @@ async def upload(file: UploadFile = File(...)):
     if not (is_zip or is_csv):
         raise HTTPException(400, "Please upload either the Connections.csv file OR the full LinkedIn data export ZIP.")
 
-    content    = await file.read()
+    content     = await file.read()
     found_files = {}
 
     try:
@@ -131,14 +146,47 @@ async def upload(file: UploadFile = File(...)):
     session_id = str(uuid.uuid4())
     _sessions[session_id] = df
 
+    # ── WhatsApp: save to SQLite and send welcome message ──────────────────────
+    whatsapp_linked = False
+    if phone:
+        clean_phone = phone.strip().replace(" ", "")
+        # Normalise: ensure E.164 format (e.g. +919876543210)
+        if not clean_phone.startswith("+"):
+            clean_phone = "+" + clean_phone
+        try:
+            db.save_user_data(clean_phone, df)
+            whatsapp_linked = True
+            # Send a Twilio welcome message if credentials are configured
+            if settings.twilio_account_sid and settings.twilio_auth_token:
+                _send_whatsapp_welcome(clean_phone, len(df))
+        except Exception as e:
+            print(f"[upload] Failed to save to SQLite or send WhatsApp: {e}")
+
     return {
-        "session_id":   session_id,
-        "connections":  _df_to_connections(df),
-        "insights":     _compute_insights(df),
-        "total":        len(df),
-        "found_files":  found_files,
-        "file_type":    "zip" if is_zip else "csv",
+        "session_id":      session_id,
+        "connections":     _df_to_connections(df),
+        "insights":        _compute_insights(df),
+        "total":           len(df),
+        "found_files":     found_files,
+        "file_type":       "zip" if is_zip else "csv",
+        "whatsapp_linked": whatsapp_linked,
     }
+
+
+def _send_whatsapp_welcome(phone: str, total: int):
+    """Send a Twilio WhatsApp welcome message to the user."""
+    try:
+        from twilio.rest import Client
+        from whatsapp_formatter import format_welcome
+        client = Client(settings.twilio_account_sid, settings.twilio_auth_token)
+        client.messages.create(
+            from_=settings.twilio_whatsapp_from,
+            to=f"whatsapp:{phone}",
+            body=format_welcome(total),
+        )
+        print(f"[whatsapp] Welcome message sent to {phone}")
+    except Exception as e:
+        print(f"[whatsapp] Failed to send welcome message: {e}")
 
 
 @app.post("/api/query")
@@ -222,3 +270,40 @@ async def get_insights(session_id: str):
     if df is None:
         raise HTTPException(404, "Session not found.")
     return _compute_insights(df)
+
+
+# ── WhatsApp Webhook ───────────────────────────────────────────────────────────
+
+@app.post("/api/whatsapp")
+async def whatsapp_webhook(request: Request):
+    """
+    Twilio WhatsApp webhook endpoint.
+    Receives form-encoded POST with Body, From, etc.
+    Returns TwiML XML.
+    """
+    try:
+        form = await request.form()
+        body      = form.get("Body", "").strip()
+        from_raw  = form.get("From", "")           # e.g. "whatsapp:+919876543210"
+        from_phone = from_raw.replace("whatsapp:", "").strip()
+
+        if not from_phone:
+            return PlainTextResponse(
+                '<?xml version="1.0" encoding="UTF-8"?><Response></Response>',
+                media_type="application/xml",
+            )
+
+        twiml = handle_message(
+            from_phone=from_phone,
+            body=body,
+            website_url=settings.website_url,
+        )
+        return PlainTextResponse(content=twiml, media_type="application/xml")
+
+    except Exception as e:
+        print(f"[whatsapp_webhook] Error: {e}")
+        error_twiml = (
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            '<Response><Message>❌ Something went wrong. Please try again.</Message></Response>'
+        )
+        return PlainTextResponse(content=error_twiml, media_type="application/xml")

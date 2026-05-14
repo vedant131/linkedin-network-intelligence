@@ -13,6 +13,14 @@ class Settings:
     company_tier_scoring: bool = os.getenv("COMPANY_TIER_SCORING", "true").lower() == "true"
     batch_size: int = 50  # connections per OpenAI call
 
+    # ── Twilio WhatsApp ────────────────────────────────────────────────────────
+    twilio_account_sid:    str = os.getenv("TWILIO_ACCOUNT_SID", "")
+    twilio_auth_token:     str = os.getenv("TWILIO_AUTH_TOKEN", "")
+    # Sandbox number: whatsapp:+14155238886
+    # Production:     whatsapp:+1XXXXXXXXXX (your bought number)
+    twilio_whatsapp_from:  str = os.getenv("TWILIO_WHATSAPP_FROM", "whatsapp:+14155238886")
+    website_url:           str = os.getenv("WEBSITE_URL", "http://localhost:3000")
+
     # Tier-1 company list for prestige scoring
     TIER_1_COMPANIES: set = {
         "google", "meta", "amazon", "apple", "microsoft", "netflix",

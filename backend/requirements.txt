@@ -7,3 +7,4 @@ openai==1.30.5
 python-multipart==0.0.9
 python-dotenv==1.0.1
 pydantic==2.7.0
+twilio>=8.0.0

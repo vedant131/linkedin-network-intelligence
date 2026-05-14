@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: linkedin-network-intelligence
+    name: networkiq-backend
     runtime: python
     rootDir: backend
     buildCommand: pip install -r requirements.txt
@@ -8,4 +8,20 @@ services:
     plan: free
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.0
+        value: "3.11.0"
+      - key: AI_MODE
+        value: offline
+      - key: COMPANY_TIER_SCORING
+        value: "true"
+      - key: TWILIO_ACCOUNT_SID
+        sync: false          # set manually in Render dashboard
+      - key: TWILIO_AUTH_TOKEN
+        sync: false          # set manually in Render dashboard
+      - key: TWILIO_WHATSAPP_FROM
+        value: "whatsapp:+14155238886"
+      - key: WEBSITE_URL
+        value: "https://vedant131.github.io/linkedin-network-intelligence"
+    disk:
+      name: networkiq-data
+      mountPath: /data
+      sizeGB: 1
