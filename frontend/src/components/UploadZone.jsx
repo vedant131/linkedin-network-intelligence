@@ -313,7 +313,7 @@ export default function UploadZone({ onUpload }) {
             fontSize: 13, color: 'var(--li-text-2)',
           }}>
             <span style={{ fontSize: 16, flexShrink: 0 }}>🔒</span>
-            <span>Your data is processed on a <strong>secure private server</strong>. Phone numbers are only used to route WhatsApp queries back to your data.</span>
+            <span>Your data is securely processed and stored in a private database linked to your WhatsApp number. This enables your 24/7 AI Bot. We never sell or share your data.</span>
           </div>
         </div>
 
