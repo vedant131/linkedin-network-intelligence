@@ -158,7 +158,8 @@ async def upload(
             whatsapp_linked = True
             # Send a Twilio welcome message if credentials are configured
             if settings.twilio_account_sid and settings.twilio_auth_token:
-                _send_whatsapp_welcome(clean_phone, len(df))
+                insights = _compute_insights(df)
+                _send_whatsapp_welcome(clean_phone, len(df), insights)
         except Exception as e:
             print(f"[upload] Failed to save to SQLite or send WhatsApp: {e}")
 
@@ -173,7 +174,7 @@ async def upload(
     }
 
 
-def _send_whatsapp_welcome(phone: str, total: int):
+def _send_whatsapp_welcome(phone: str, total: int, df_summary: dict):
     """Send a Twilio WhatsApp welcome message to the user."""
     try:
         from twilio.rest import Client
@@ -182,7 +183,7 @@ def _send_whatsapp_welcome(phone: str, total: int):
         client.messages.create(
             from_=settings.twilio_whatsapp_from,
             to=f"whatsapp:{phone}",
-            body=format_welcome(total),
+            body=format_welcome(total, df_summary),
         )
         print(f"[whatsapp] Welcome message sent to {phone}")
     except Exception as e:

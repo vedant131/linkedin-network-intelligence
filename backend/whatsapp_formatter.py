@@ -175,17 +175,34 @@ def format_help() -> str:
     )
 
 
-def format_welcome(total: int) -> str:
-    return (
-        f"✅ *You're connected to NetworkIQ!*\n\n"
-        f"👥 *{total:,}* connections loaded and ready.\n\n"
-        f"*Try asking:*\n"
-        f"• 'who works at Google?'\n"
-        f"• 'find recruiters'\n"
-        f"• 'show senior engineers'\n"
-        f"• 'stats'\n\n"
-        f"_Text *help* for all commands_ 🚀"
-    )
+def format_welcome(total: int, df_summary: dict = None) -> str:
+    lines = [
+        f"✅ *You're connected to NetworkIQ!*\n",
+        f"Hello! Your network is loaded. Here is a quick snapshot of your data:\n",
+        f"👥 *{total:,}* total connections\n",
+        "*By role:*"
+    ]
+
+    if df_summary:
+        by_cat = df_summary.get("by_category", {})
+        for cat, count in sorted(by_cat.items(), key=lambda x: -x[1])[:5]:
+            emoji = CATEGORY_EMOJI.get(cat, "👤")
+            pct = round(count / total * 100) if total else 0
+            lines.append(f"  {emoji} {cat}: *{count}* ({pct}%)")
+
+        top_cos = df_summary.get("top_companies", [])[:3]
+        if top_cos:
+            lines.append("\n*Top companies:*")
+            for name, cnt in top_cos:
+                lines.append(f"  🏢 {name}: {cnt}")
+
+    lines.append(f"\n*Try asking:*")
+    lines.append(f"• 'who works at Google?'")
+    lines.append(f"• 'find recruiters'")
+    lines.append(f"• 'get email Raman'\n")
+    lines.append(f"_Text *help* for all commands_ 🚀")
+    
+    return "\n".join(lines)
 
 
 def format_not_registered(website_url: str = "your NetworkIQ app") -> str:
