@@ -50,40 +50,44 @@ export default function UploadZone({ onUpload }) {
     <>
       {/* 2-option instructions */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
-        <OptionCard
-          recommended
-          icon="📦"
-          title="Option 1 — Upload ZIP (recommended)"
-          steps={[
-            'LinkedIn → Settings & Privacy',
-            'Data Privacy → Get a copy of your data',
-            'Select "Connections" → Request archive',
-            'Upload the ZIP file directly here ✓',
-          ]}
-        />
-        <OptionCard
-          icon="📄"
-          title="Option 2 — Upload CSV only"
-          steps={[
-            'Extract the ZIP file',
-            'Find the "Connections" file inside',
-            'Upload just that file here',
-            '(less contact data available)',
-          ]}
-        />
+        <div className="anim-stagger-1">
+          <OptionCard
+            recommended
+            icon="📦"
+            title="Option 1 — Upload ZIP (recommended)"
+            steps={[
+              'LinkedIn → Settings & Privacy',
+              'Data Privacy → Get a copy of your data',
+              'Select "Connections" → Request archive',
+              'Upload the ZIP file directly here ✓',
+            ]}
+          />
+        </div>
+        <div className="anim-stagger-2">
+          <OptionCard
+            icon="📄"
+            title="Option 2 — Upload CSV only"
+            steps={[
+              'Extract the ZIP file',
+              'Find the "Connections" file inside',
+              'Upload just that file here',
+              '(less contact data available)',
+            ]}
+          />
+        </div>
       </div>
 
       {/* Drop zone */}
       <div
         id="upload-dropzone"
-        className={`upload-zone ${isDragging ? 'dragging' : ''}`}
+        className={`upload-zone anim-stagger-3 hover-lift ${isDragging ? 'dragging' : ''}`}
         style={{ padding: '32px 24px', textAlign: 'center', background: 'var(--li-bg)', marginBottom: 16 }}
         onDragOver={e => { e.preventDefault(); setDragging(true) }}
         onDragLeave={() => setDragging(false)}
         onDrop={handleDrop}
         onClick={() => inputRef.current?.click()}
       >
-        <div style={{ fontSize: 36, marginBottom: 10 }}>
+        <div className="icon-float" style={{ fontSize: 36, marginBottom: 10 }}>
           {isDragging ? '📂' : '📁'}
         </div>
         <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--li-text)', marginBottom: 6 }}>
@@ -324,7 +328,7 @@ export default function UploadZone({ onUpload }) {
 
 function OptionCard({ icon, title, steps, recommended }) {
   return (
-    <div style={{
+    <div className="hover-lift" style={{
       border: `1.5px solid ${recommended ? 'var(--li-blue)' : 'rgba(0,0,0,0.12)'}`,
       borderRadius: 6, padding: '12px 14px',
       background: recommended ? 'rgba(10,102,194,0.04)' : 'var(--li-bg)',
