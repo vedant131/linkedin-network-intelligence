@@ -1,11 +1,11 @@
 # NetworkIQ 🔗
-> **Turn your LinkedIn connections into actionable intelligence.**
+> **Turn your LinkedIn connections into actionable intelligence, accessible anywhere.**
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-vedant131.github.io%2Fnetworkiq-0A66C2?style=for-the-badge&logo=github)](https://vedant131.github.io/networkiq/)
 [![Backend](https://img.shields.io/badge/Backend-Render-46E3B7?style=for-the-badge&logo=render)](https://linkedin-network-intelligence.onrender.com)
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
-Upload your LinkedIn data export and instantly see your entire professional network classified, ranked, and searchable — with outreach messages, Excel export, and smart filters.
+NetworkIQ transforms your raw LinkedIn data export into a fully searchable, intelligent CRM. Access your professional network on the web dashboard or text the Twilio-powered AI bot directly on WhatsApp to query your network and automatically find missing contact info.
 
 ---
 
@@ -21,7 +21,10 @@ https://vedant131.github.io/networkiq/
 
 | Feature | Description |
 |---|---|
+| 💬 **WhatsApp AI Bot** | Text your network from anywhere ("find senior engineers", "who works at Google") |
+| 📧 **Hunter.io Enrichment** | Missing an email? Text the bot "get email Raman" or click "Find Email" in the dashboard to instantly find and permanently save their corporate email. |
 | 📦 **ZIP / CSV Upload** | Accepts the full LinkedIn data export ZIP or just `Connections.csv` |
+| ☁️ **Cloud Database** | All data is securely persisted on Render using a robust SQLite database |
 | 🤖 **Auto Classification** | Labels every connection as Engineer, Recruiter, Founder, Student, etc. |
 | 📊 **Seniority Detection** | Intern → Junior → Mid → Senior → Lead → Executive |
 | 🔍 **Instant Search** | Type "recruiters at Google" or "senior ML engineers" — results in milliseconds |
@@ -40,15 +43,16 @@ https://vedant131.github.io/networkiq/
 ```
 ┌─────────────────────────┐        ┌──────────────────────────┐
 │  Frontend (React/Vite)  │  HTTP  │  Backend (FastAPI/Python) │
-│  GitHub Pages           │◄──────►│  Render.com (Free Tier)  │
-│  vedant131.github.io    │        │  onrender.com            │
+│  GitHub Pages           │◄──────►│  Render.com (Production) │
+│  vedant131.github.io    │        │  Persistent SQLite /data │
 └─────────────────────────┘        └──────────────────────────┘
          │                                    │
          │ Instant client-side:               │ Server-side:
-         │ • Search                           │ • ZIP / CSV parsing
-         │ • Filtering                        │ • Data cleaning
-         │ • Sorting                          │ • Classification
-         │ • UI rendering                     │ • Ranking & tagging
+         │ • Smart Search & Filtering         │ • ZIP / CSV parsing & Pipeline
+         │ • Dashboard Visualisation          │ • SQLite DB (User Data)
+         │ • AI Email Lookup via Hunter.io    │ • NLP Query Engine
+         │ • UI rendering                     │ • Twilio Webhook Handler
+                                              │ • Auto WhatsApp Bot
 ```
 
 ### Tech Stack
@@ -58,11 +62,13 @@ https://vedant131.github.io/networkiq/
 - Vanilla CSS (LinkedIn design system)
 - Deployed on GitHub Pages via GitHub Actions
 
-**Backend**
+**Backend & Bot**
 - Python 3.11 + FastAPI + Uvicorn
-- Pandas for data processing
-- Rule-based NLP classifier (no external AI needed)
-- Deployed on Render (free tier)
+- Pandas for data processing pipelines
+- SQLite (for persistent user databases in Render)
+- Twilio SDK for WhatsApp Chatbot
+- Hunter.io API for corporate email enrichment
+- Deployed on Render
 
 ---
 
@@ -71,6 +77,8 @@ https://vedant131.github.io/networkiq/
 ### Prerequisites
 - Node.js 18+
 - Python 3.11+
+- Twilio Account (for WhatsApp Bot)
+- Hunter.io Account (for Contact Enrichment)
 
 ### One-click start (Windows)
 ```bat
@@ -85,6 +93,9 @@ cd backend
 python -m venv venv
 venv\Scripts\activate       # Windows
 pip install -r requirements.txt
+```
+Copy `.env.example` to `.env` and fill in your Twilio/Hunter keys.
+```bash
 uvicorn main:app --reload --port 8000
 ```
 
@@ -101,45 +112,27 @@ Open → `http://localhost:3000`
 
 ## 📁 Project Structure
 
-```
+```text
 networkiq/
 ├── frontend/                   # React app
 │   ├── src/
 │   │   ├── App.jsx             # Main app + state management
-│   │   ├── api.js              # API base URL helper
-│   │   ├── queryEngine.js      # Client-side NLP search engine
-│   │   ├── components/
-│   │   │   ├── UploadZone.jsx  # Drag & drop file upload
-│   │   │   ├── NetworkTable.jsx# Connections table with badges
-│   │   │   ├── FilterPanel.jsx # Dynamic filter dropdowns
-│   │   │   ├── QueryBar.jsx    # Natural language search bar
-│   │   │   ├── ContactDrawer.jsx # Side panel with contact info
-│   │   │   ├── InsightsDashboard.jsx # Analytics charts
-│   │   │   ├── ExportButton.jsx# Excel download button
-│   │   │   └── MessageModal.jsx# Outreach message generator
+│   │   ├── components/         # UI Components (Drawer, Table, Upload)
 │   │   └── index.css           # LinkedIn design tokens
 │   └── vite.config.js
 │
 ├── backend/                    # FastAPI app
-│   ├── main.py                 # API routes
-│   ├── config.py               # Settings (AI mode, API keys)
-│   ├── models/
-│   │   └── schemas.py          # Pydantic request models
-│   ├── pipeline/
-│   │   ├── ingestion.py        # CSV / ZIP file reader
-│   │   ├── cleaning.py         # Name & title normalisation
-│   │   ├── classifier.py       # Rule-based category classifier
-│   │   ├── tagger.py           # Auto-tagging logic
-│   │   ├── ranker.py           # Connection scoring
-│   │   └── query_engine.py     # NLP query parser
-│   ├── exporters/
-│   │   └── excel_exporter.py   # .xlsx builder
+│   ├── main.py                 # API routes & Webhooks
+│   ├── db.py                   # SQLite database controller
+│   ├── whatsapp_bot.py         # Twilio logic & Intent Parser
+│   ├── whatsapp_formatter.py   # TwiML payload builder
+│   ├── hunter_api.py           # Contact enrichment via Hunter.io
+│   ├── config.py               # Settings (API keys, env logic)
+│   ├── pipeline/               # Ingestion, Cleaning, Tagger, NLP
 │   └── requirements.txt
 │
-├── .github/workflows/
-│   └── deploy.yml              # Auto-deploy frontend to GitHub Pages
-├── render.yaml                 # Render backend config
-├── START.bat                   # Windows one-click launcher
+├── .github/workflows/          # GitHub Actions CI/CD
+├── render.yaml                 # Render Infrastructure-as-Code
 └── .env.example                # Environment variable template
 ```
 
@@ -147,18 +140,22 @@ networkiq/
 
 ## ⚙️ Environment Variables
 
-### Backend (`.env`)
-```env
-AI_MODE=offline           # "offline" (rule-based) or "openai" (GPT-4o-mini)
-OPENAI_API_KEY=           # Optional — only needed for AI_MODE=openai
-OPENAI_MODEL=gpt-4o-mini  # Optional
-BATCH_SIZE=20             # Connections per OpenAI batch
-```
+Create a `.env` file in the `backend` folder:
 
-### GitHub Secrets (for CI/CD)
-| Secret | Value |
-|---|---|
-| `VITE_API_BASE` | `https://linkedin-network-intelligence.onrender.com` |
+```env
+# Twilio WhatsApp Bot
+TWILIO_ACCOUNT_SID=AC...
+TWILIO_AUTH_TOKEN=...
+TWILIO_WHATSAPP_FROM=whatsapp:+14155238886
+WEBSITE_URL=https://vedant131.github.io/networkiq
+
+# Hunter.io Contact Enrichment
+HUNTER_API_KEY=your_key_here
+
+# OpenAI (Optional - default is offline rules)
+AI_MODE=offline
+OPENAI_API_KEY=sk-...
+```
 
 ---
 
@@ -174,24 +171,18 @@ BATCH_SIZE=20             # Connections per OpenAI batch
 
 ## 🔒 Privacy
 
-Your LinkedIn data is processed on a **secure private server** and held in memory only for the duration of your session. It is never stored in a database, never shared, and never used for any purpose other than showing you your results.
+Your LinkedIn data is parsed on the server and stored in a private SQLite database keyed securely to your provided E.164 phone number. No third party tracks this data, and it remains accessible only to you through the verified WhatsApp Sandbox.
 
 ---
 
-## 🗺️ Roadmap
+## 📄 License
 
-- [ ] Move entire pipeline client-side (browser-only, zero backend)
-- [ ] Persistent sessions (no re-upload needed)
-- [ ] Custom tagging and notes per connection
-- [ ] Custom domain (e.g. `networkiq.app`)
-- [ ] Dark mode
+This project is licensed under the [MIT License](LICENSE).
 
 ---
 
 ## 👤 Author
 
 **Vedant** — [@vedant131](https://github.com/vedant131)
-
----
 
 *Built with ❤️ to make LinkedIn actually useful.*
