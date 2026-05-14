@@ -135,15 +135,15 @@ def handle_message(from_phone: str, body: str, website_url: str = WEBSITE_URL) -
             return _twiml("⚠️ Could not load your data.")
             
         # Find connection by name
-        if 'FullName' in df.columns:
+        if 'full_name' in df.columns:
             # Try exact first name match if it's a single word, else substring
             if " " not in target_name:
                 # If they just said "Raman", try matching first name specifically or substring
-                matches = df[df['FullName'].str.lower().str.contains(r'\b' + re.escape(target_name.lower()) + r'\b', na=False)]
+                matches = df[df['full_name'].str.lower().str.contains(r'\b' + re.escape(target_name.lower()) + r'\b', na=False)]
                 if matches.empty:
-                    matches = df[df['FullName'].str.lower().str.contains(target_name.lower(), na=False)]
+                    matches = df[df['full_name'].str.lower().str.contains(target_name.lower(), na=False)]
             else:
-                matches = df[df['FullName'].str.lower().str.contains(target_name.lower(), na=False)]
+                matches = df[df['full_name'].str.lower().str.contains(target_name.lower(), na=False)]
         else:
             return _twiml("⚠️ Missing name column in database. Please re-upload.")
             
@@ -151,8 +151,8 @@ def handle_message(from_phone: str, body: str, website_url: str = WEBSITE_URL) -
             return _twiml(f"❌ Couldn't find anyone named '{target_name}' in your connections.")
             
         row = matches.iloc[0]
-        full_name = str(row.get('FullName', row.get('full_name', '')))
-        company = str(row.get('Company', row.get('company_clean', '')))
+        full_name = str(row.get('full_name', ''))
+        company = str(row.get('company_clean', row.get('company', '')))
         existing_email = str(row.get('Email Address', row.get('email', '')))
         
         if existing_email and existing_email.strip() and existing_email.lower() != "nan":

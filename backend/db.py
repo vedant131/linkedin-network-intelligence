@@ -95,10 +95,10 @@ def update_user_connection_email(phone: str, full_name: str, company: str, email
     if df is None:
         return False
         
-    if 'FullName' in df.columns:
-        mask = (df['FullName'].str.lower() == full_name.lower()) & (df['Company'].astype(str).str.lower().str.contains(company.lower(), na=False))
+    if 'full_name' in df.columns:
+        mask = (df['full_name'].str.lower() == full_name.lower()) & (df['company_clean'].astype(str).str.lower().str.contains(company.lower(), na=False))
         if not mask.any():
-            mask = (df['FullName'].str.lower() == full_name.lower())
+            mask = (df['full_name'].str.lower() == full_name.lower())
     else:
         return False
         
